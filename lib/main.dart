@@ -273,12 +273,13 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
                           );
                         });
                       }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error creating user'),
+                        ),
+                      );
                     }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error creating user'),
-                      ),
-                    );
                   });
                 },
                 cursorColor: Colors.white,
