@@ -5,11 +5,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:spotmies_anniversary/firebase_options.dart';
+import 'package:spotmies_anniversary/game_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MainApp());
+  runApp(MaterialApp(
+    theme: ThemeData(fontFamily: "Nusar"),
+    home: GamePage(),
+  ));
 }
 
 class MainApp extends StatelessWidget {
@@ -114,6 +118,10 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
             isTimelineVisible = true;
           });
           Future.delayed(Duration(seconds: 1), () {
+            if (FirebaseAuth.instance.currentUser != null) {
+              goToGamePage();
+              return;
+            }
             setState(() {
               showTextField = true;
             });
@@ -272,6 +280,12 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
                             ),
                           );
                         });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error creating user ${error.code}'),
+                          ),
+                        );
                       }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -318,17 +332,7 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
   void goToGamePage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Welcome to our 4th Anniversary Celebration!'),
-                Text("Coming soon!"),
-              ],
-            ),
-          ),
-        ),
+        builder: (context) => GamePage(),
       ),
     );
   }
