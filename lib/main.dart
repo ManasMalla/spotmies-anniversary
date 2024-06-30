@@ -10,7 +10,10 @@ import 'package:spotmies_anniversary/game_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MainApp());
+  runApp(MaterialApp(
+    theme: ThemeData(fontFamily: "Nusar"),
+    home: GamePage(),
+  ));
 }
 
 class MainApp extends StatelessWidget {
@@ -101,8 +104,6 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
     'ञ'
   ];
   var showTextField = false;
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -189,48 +190,8 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
                 ),
               ),
               child: TextField(
-                controller: _nameController,
-                keyboardType: TextInputType.name,
-                textInputAction: TextInputAction.next,
-                cursorColor: Colors.white,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  hintText: 'Enter your nickname',
-                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withOpacity(0.5),
-                      ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.orange,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
-            ),
-          ),
-          crossFadeState: showTextField
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          duration: Duration(milliseconds: 500),
-        ),
-        AnimatedCrossFade(
-          firstChild: SizedBox(),
-          secondChild: Padding(
-            padding: const EdgeInsets.all(24.0).copyWith(top: 0),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Colors.orange,
-                  onSurface: Colors.white,
-                ),
-              ),
-              child: TextField(
-                onSubmitted: (email) {
-                  if (_nameController.text.isEmpty) {
+                onSubmitted: (name) {
+                  if (name.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Please enter your nickname'),
@@ -238,18 +199,13 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
                     );
                     return;
                   }
-                  if (email.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Please enter your email'),
-                      ),
-                    );
-                  }
+
                   FirebaseAuth.instance
                       .createUserWithEmailAndPassword(
-                          email: email, password: "SPOTMIESINTERN")
+                          email: "$name@spotmies.in",
+                          password: "SPOTMIESINTERN")
                       .then((value) {
-                    value.user?.updateDisplayName(_nameController.text);
+                    value.user?.updateDisplayName(name);
                     goToGamePage();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -261,9 +217,10 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
                       if (error.code == 'email-already-in-use') {
                         FirebaseAuth.instance
                             .signInWithEmailAndPassword(
-                                email: email, password: "SPOTMIESINTERN")
+                                email: "$name@spotmies.in",
+                                password: "SPOTMIESINTERN")
                             .then((value) {
-                          value.user?.updateDisplayName(_nameController.text);
+                          value.user?.updateDisplayName(name);
                           goToGamePage();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -293,10 +250,11 @@ class _SpotmiesKalkiLogoState extends State<SpotmiesKalkiLogo> {
                     }
                   });
                 },
+                keyboardType: TextInputType.name,
                 cursorColor: Colors.white,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: 'Enter your email',
+                  hintText: 'Enter your nickname',
                   hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white.withOpacity(0.5),
                       ),

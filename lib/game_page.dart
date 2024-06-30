@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
 
@@ -10,7 +12,7 @@ class GamePage extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    const games = ["Spin the Wheel", "Memory Game", "Puzzle Game"];
+    const games = ["Spin the Wheel", "CaptionIt", "Feedback"];
     const spinWheel = [
       "Proud",
       "Scariest",
@@ -49,59 +51,64 @@ class GamePage extends StatelessWidget {
                     return InkWell(
                       onTap: () {
                         if (itemIndex == 0) {
+                          showSpinWheelGame(context, spinWheel);
+                        } else if (itemIndex == 1) {
+                          showCaptionItGame();
+                          // Navigator.pushNamed(context, '/memoryGame');
+                        } else if (itemIndex == 2) {
                           showModalBottomSheet(
-                              isScrollControlled: true,
                               context: context,
                               builder: (context) {
-                                StreamController<int> controller =
-                                    StreamController<int>();
+                                final controller = TextEditingController();
                                 return Builder(builder: (context) {
                                   return Padding(
                                     padding: EdgeInsets.all(24),
                                     child: Column(
-                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          'Spin the Wheel',
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          "Feedback",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineMedium,
                                         ),
                                         Text(
-                                            "Spin the wheel to know your fortune!"),
-                                        SizedBox(
-                                          height: 24,
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            controller.add(Random()
-                                                .nextInt(spinWheel.length - 1));
-                                          },
-                                          child: Text('Spin the Wheel'),
+                                          "Please provide your honest feedback here.\nYour responses will be anonymous.",
+                                          textAlign: TextAlign.center,
                                         ),
                                         SizedBox(
                                           height: 24,
                                         ),
-                                        Container(
-                                          height: 300,
-                                          child: FortuneWheel(
-                                            selected: controller.stream,
-                                            items: spinWheel
-                                                .map((e) =>
-                                                    FortuneItem(child: Text(e)))
-                                                .toList(),
+                                        TextField(
+                                          controller: controller,
+                                          maxLines: null,
+                                          decoration: InputDecoration(
+                                            hintText:
+                                                "Enter your feedback here",
+                                            border: OutlineInputBorder(),
                                           ),
+                                        ),
+                                        SizedBox(
+                                          height: 24,
+                                        ),
+                                        FilledButton(
+                                          onPressed: () {
+                                            FirebaseFirestore.instance
+                                                .collection("spotmies")
+                                                .doc(FirebaseAuth.instance
+                                                        .currentUser?.uid ??
+                                                    "anonymous-user")
+                                                .set({
+                                              "feedback": controller.text
+                                            });
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("Submit"),
                                         ),
                                       ],
                                     ),
                                   );
                                 });
                               });
-                          // Navigator.pushNamed(context, '/spinWheel', arguments: spinWheel);
-                        } else if (itemIndex == 1) {
-                          // Navigator.pushNamed(context, '/memoryGame');
-                        } else if (itemIndex == 2) {
                           // Navigator.pushNamed(context, '/puzzleGame');
                         }
                       },
@@ -120,4 +127,55 @@ class GamePage extends StatelessWidget {
       ),
     );
   }
+
+  Future<dynamic> showSpinWheelGame(
+      BuildContext context, List<String> spinWheel) {
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context) {
+          StreamController<int> controller = StreamController<int>();
+          return Builder(builder: (context) {
+            return Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Spin the Wheel',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text("Spin the wheel to know your fortune!"),
+                  SizedBox(
+                    height: 24,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      controller.add(Random().nextInt(spinWheel.length - 1));
+                    },
+                    child: Text('Spin the Wheel'),
+                  ),
+                  SizedBox(
+                    height: 24,
+                  ),
+                  Container(
+                    height: 300,
+                    child: FortuneWheel(
+                      selected: controller.stream,
+                      items: spinWheel
+                          .map((e) => FortuneItem(child: Text(e)))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          });
+        });
+  }
+
+  void showCaptionItGame() {}
 }
