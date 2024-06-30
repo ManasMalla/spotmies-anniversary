@@ -12,7 +12,7 @@ class GamePage extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    const games = ["Spin the Wheel", "CaptionIt", "Feedback"];
+    const games = ["Spin the Wheel", "CaptionIt", "Slido", "Feedback"];
     const spinWheel = [
       "Proud",
       "Scariest",
@@ -55,7 +55,7 @@ class GamePage extends StatelessWidget {
                         } else if (itemIndex == 1) {
                           showCaptionItGame();
                           // Navigator.pushNamed(context, '/memoryGame');
-                        } else if (itemIndex == 2) {
+                        } else if (itemIndex == 3) {
                           showModalBottomSheet(
                               context: context,
                               builder: (context) {
