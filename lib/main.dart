@@ -10,7 +10,10 @@ import 'package:spotmies_anniversary/game_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MainApp());
+  runApp(MaterialApp(
+    theme: ThemeData(fontFamily: "Nusar"),
+    home: GamePage(),
+  ));
 }
 
 class MainApp extends StatelessWidget {

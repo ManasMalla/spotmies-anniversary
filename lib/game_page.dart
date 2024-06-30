@@ -4,7 +4,9 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class GamePage extends StatelessWidget {
   GamePage({
@@ -49,11 +51,23 @@ class GamePage extends StatelessWidget {
                   shrinkWrap: true,
                   itemBuilder: (context, itemIndex) {
                     return InkWell(
-                      onTap: () {
+                      onTap: () async {
                         if (itemIndex == 0) {
                           showSpinWheelGame(context, spinWheel);
                         } else if (itemIndex == 1) {
-                          showCaptionItGame();
+                          showCaptionItGame(context);
+                          // Navigator.pushNamed(context, '/memoryGame');
+                        } else if (itemIndex == 2) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Opening Slido in browser"),
+                          ));
+                          final url =
+                              "https://app.sli.do/event/kP4muTAgRUxZihaxqF3Uem";
+                          Clipboard.setData(ClipboardData(
+                              text: FirebaseAuth
+                                      .instance.currentUser?.displayName ??
+                                  "Anonymous User"));
+                          await launchUrlString(url);
                           // Navigator.pushNamed(context, '/memoryGame');
                         } else if (itemIndex == 3) {
                           showModalBottomSheet(
@@ -177,5 +191,30 @@ class GamePage extends StatelessWidget {
         });
   }
 
-  void showCaptionItGame() {}
+  void showCaptionItGame(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return Container(
+            width: 600,
+            height: 600,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Guess the scenario"),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Image.asset(
+                    "assets/images/ image-${Random().nextInt(13) + 1}.jpeg",
+                    fit: BoxFit.cover,
+                    height: 500,
+                    width: 500,
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
 }
